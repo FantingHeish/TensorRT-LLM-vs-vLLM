@@ -1,42 +1,23 @@
-# TensorRT-LLM-vs-vLLM
-# TRT-LLM vs vLLM: RAG Inference Benchmark on Colab (DeepSeek-V3/R1-ready)
+SSE Streaming 實作與 TTFT 對比
+🎯 主要目的
+驗證「Streaming 回傳（SSE Server-Sent Events）」相比傳統 Non-Streaming API 的響應速度差異， 並建立可量測 TTFT（Time To First Token） 與 總延遲（Latency） 的標準化測試框架。
 
-## TL;DR
-- 同一套 Prompt 與並發設定，對比 TensorRT-LLM 與 vLLM 的端到端延遲（p50/p95）與吞吐（tokens/s）。
-- 支援 batch=1/2/4/8、INT8/AWQ 量化（依模型與硬體支援而定）。
-- 輕量品質評估（QA、Summarization）確保量化品質不崩。
-- 可在 Colab 直接跑；若 TRT-LLM 本地安裝失敗，可配置遠端 TRT-LLM/Triton 端點，Colab 僅作壓測客戶端。
+🧰 技術內容
+模組	說明
+FastAPI + SSE-Starlette	實作伺服器端 SSE 串流端點 /generate_stream。
+Transformers + TextIteratorStreamer	實際使用 Hugging Face 模型（如 Qwen2-0.5B-Instruct）進行 token 生成。
+Threading + Streamer	以背景 thread 執行生成，同時逐 token 傳出。
+TTFT 量測	從「接收請求」到「第一段文字送出」為止。
+Latency 量測	從「接收請求」到「整段生成完成」。
+⚖️ 對比實驗
+模式	特徵	量測項目
+Non-Streaming	一次性返回整段文字	TTFT（首段出現時間）與 Latency
+Streaming	每次生成一段就推送給客戶端（SSE）	TTFT 與 Latency
+📊 產出結果
+* 以 P50 / P95 / P99 方式呈現 TTFT 分佈。
+* 產生對比圖：poc1_ttft_comparison.png
+* 結果檔：poc1_streaming_results.csv
+* 圖表顯示 Streaming 在 TTFT 明顯快（即更早開始輸出文字）。
 
-## 目錄
-- `notebooks/01_colab_trtllm_vllm_bench.ipynb` — 一鍵 Notebook（環境、engine build、壓測、作圖、品質評估）
-- `benchmarks/` — 產出的 CSV（latency、throughput、顯存、引擎大小）
-- `plots/` — 產出的圖（Latency vs Concurrency、Tokens/s vs Batch、顯存）
-- `app/` — 最小 OpenAI 相容 client + RAG 測試腳本（可獨立壓測）
-- `configs/` — 模型與量化設定樣板（DeepSeek-V3/R1/Llama3/Qwen2）
-- `README.md` — 本文件
-
-## 快速開始（Colab）
-1. 開啟 `notebooks/01_colab_trtllm_vllm_bench.ipynb`，Runtime 選 GPU（建議 T4/L4/A100）。
-2. 執行「環境安裝」→「選擇模型與端點」→「建引擎或連線端點」→「啟動 vLLM baseline」→「跑壓測」。
-3. 輸出 CSV 與圖會自動存進 `/content/benchmarks` 與 `/content/plots`，可直接上傳 GitHub。
-
-## 模型與授權
-- 預設示例用 `Llama-3-8B-Instruct` 或 `Qwen2-7B-Instruct` 作為可公開取得的 baseline。
-- 若有權重存取，可在 `configs/deepseek_v3.yaml` 或 `configs/deepseek_r1.yaml` 中填入路徑，流程一致。
-
-## 運行模式
-- **Local TRT-LLM**：Colab 內安裝 TRT-LLM（若版本匹配），並 build engine + 服務端。
-- **Remote TRT-LLM**：你在任一 GPU 主機以 `nvcr.io/nvidia/tensorrt-llm` 容器起服務；Notebook 設定 `TRTLLM_SERVER_URL` 直接壓測。
-
-## 指標
-- Latency p50/p95、端到端吞吐（tokens/s）、GPU Memory 峰值、Engine 大小。
-- Quality：QA（EM/F1 粗略）、Summarization（ROUGE-L 或 cosine 相似度）。
-
-## 產出
-- 2～3 張關鍵圖：**Tokens/s vs Batch**、**p95 Latency vs Concurrency**、**顯存對比**。
-- Nsight Systems 截圖（若使用本地 TRT-LLM 進行 profiling；Colab 可能受限）。
-- 一頁結論：何種配置下 TRT-LLM 提升多少、量化對品質的影響。
-
-## 常見問題
-- 若 Colab 的 CUDA 與 TRT-LLM 不相容，改用 Remote 模式（最穩）。
-- DeepSeek 模型較大，T4 可能 OOM；請選 7–8B 等級模型或縮短 `max_new_tokens`。
+✅ 結論摘要
+Streaming 架構可顯著降低用戶「第一段回應出現時間（TTFT）」， 即使總延遲（Latency）相近，體感上仍提升互動即時性。
