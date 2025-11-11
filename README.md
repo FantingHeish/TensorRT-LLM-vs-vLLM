@@ -33,3 +33,9 @@
 | **GPU 使用率** | 45% | 89% | 44% ↑ |
 | **記憶體使用** | 8.2GB | 7.8GB | 5% ↓ |
 | **最大 Batch Size** | 1 | 16 | 16x |
+
+## 環境需求
+- Python 3.9+
+- CUDA 11.8+ / 12.1+
+- GPU 記憶體 ≥ 8GB (建議 16GB+)
+- PyTorch 2.0+ with CUDA support
