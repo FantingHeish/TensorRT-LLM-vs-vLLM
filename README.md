@@ -7,12 +7,12 @@
 延遲改善幅度達 76.7%，適用於對話機器人、即時翻譯、程式碼補全等即時互動場景。
 
 ## ✅ 核心功能
-✅ 即時串流輸出: SSE 協定實現 token-by-token 漸進式回應
-✅ 非同步處理: Asyncio + Threading 架構避免阻塞
-✅ TTFT 優化: 首 token 延遲降至 580ms (P95)，提升 76.7%
-✅ GPU 效能監控: 即時追蹤 GPU 使用率、記憶體、溫度
-✅ Production-Ready: 支援多併發請求、錯誤處理、連線管理
-✅ 模型支援: 相容 HuggingFace Transformers 所有生成模型
+- ✅ 即時串流輸出: SSE 協定實現 token-by-token 漸進式回應
+- ✅ 非同步處理: Asyncio + Threading 架構避免阻塞
+- ✅ TTFT 優化: 首 token 延遲降至 580ms (P95)，提升 76.7%
+- ✅ GPU 效能監控: 即時追蹤 GPU 使用率、記憶體、溫度
+- ✅ Production-Ready: 支援多併發請求、錯誤處理、連線管理
+- ✅ 模型支援: 相容 HuggingFace Transformers 所有生成模型
 
 ## 🧰 技術架構
 | 模組 | 技術 |
