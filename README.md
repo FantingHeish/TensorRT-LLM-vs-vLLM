@@ -1,4 +1,4 @@
-# SSE Streaming TTFT Optimization
+# Streaming Optimization
 
 ## 🎯 專案簡介
 針對大型語言模型（LLM）推論場景開發的 Server-Sent Events (SSE) 串流優化系統，實現低延遲的即時 token 輸出，大幅改善使用者互動體驗。
