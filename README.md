@@ -12,7 +12,7 @@
 ⭐ 透過背景 Thread 推論、TextIteratorStreamer、SSE 即時 Token 傳輸，構成非阻塞的 Streaming Pipeline，有效降低 TTFT / Latency 並提升互動流暢度。
 ### 🔸 1. Async Decode Thread
 🎯 作法：
-講推論 (model.generate) 放在背景 Thread 執行：
+將推論 (model.generate) 放在背景 Thread 執行：
 - Background Thread
   - 執行 Prefill（重計算）
   - Autoregressive Decode（逐 token）
