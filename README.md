@@ -13,39 +13,53 @@
 ### 🔸 1. Async Decode Thread
 #### 🎯 作法：
 將推論 (model.generate) 放在背景 Thread 執行：
-- Background Thread
-  - 執行 Prefill（重計算）
+- 背景 Thread 做：
+  - Prefill（重度矩陣運算）
   - Autoregressive Decode（逐 token）
-- FastAPI 主執行緒
-  - 不做 compute
-  - 專責讀取 Streamer、推送 token
+  - 將 token 推進 streamer queue
+- 同時 FastAPI 主執行緒完全不需要等待推論完成。
 #### 👉 達成：
 - ✔ 推論與輸出分離，使第一個token更快送出（降低 TTFT）。
 
-### 🔸 2. Streaming Pipeline：token 一生成就送到 client
+### 🔸 2. TextIteratorStreamer + SSE Streaming
 #### 🎯 作法：（Streaming 流程）
-1. 背景 Thread 執行 model.generate()
-2. 每生成一個 token → push 到 TextIteratorStreamer queue
-3. FastAPI SSE handler 逐 token 傳輸：
+- 背景 Thread 產生 token → TextIteratorStreamer queue → SSE event → browser/client
+- 流程：
+  - 模型 decode 產生一個 token
+  - streamer.push(token)
+  - SSE handler for piece in streamer: 就能立刻收到
+  - 把收到的 token 立即送給 client
+
 💡 TextIteratorStreamer：逐 token 非阻塞拉取
 💡 SSE (Server-Sent Events)：即時推送 token
 💡 Async Event Loop：支援連續流式輸出、避免阻塞
+💡 Background thread：負責 compute（Prefill + Decode）
 
 #### 👉 達成：
-- ✔ Streamer 一旦收到 token，即刻送給 client —— 無需等待整段完成。
+- ✔ token 不累積
+- ✔ streaming 變得順暢
+- ✔ 不需等待整段輸出 → TTFT 降低
 
-### 🔸 3. Prefill / Decode Pipeline 的自然解耦
+### 🔸 3. Prefill / Decode Pipeline 自然解耦
 #### 🎯 作法：
-架構會自動形成兩條 pipeline 如下：
-| 執行緒 | 工作內容 |
+- 背景 Thread 工作：
+| Prefill | Decode |
 |------|------|
-| **背景 Thread** | Prefill → Decode → push token 到 Streamer |
-| **主執行緒（FastAPI）** | 從 Streamer 拉 token → SSE 傳給前端 |
+| **embedding + attn weights** | autoregressive token production |
+| **重度計算** | 輕度逐步計算 |
+
+- FastAPI 主執行緒：
+| 行為                  |
+| ------------------- |
+| 等待 streamer 的 token |
+| 用 SSE 送給 client     |
+| 不做任何矩陣運算（完全非阻塞）     |
 
 #### 👉 達成：
-- ✔ Prefill（重度計算）不阻塞 token 傳輸
+- ✔ Prefill不阻塞 token 傳輸
 - ✔ Decode token 出現後可立即送出
 - ✔ TTFT 顯著降低、互動性更強
+
 
 ### 🔸 4. Non-blocking Inference（非阻塞推論架構）
 #### 🎯 作法：
@@ -61,14 +75,17 @@
 
 
 ## 🧰 技術架構
-| 模組 | 技術 |
-|------|------|
-| **Web 框架** | FastAPI、SSE-Starlette |
-| **串流機制** | TextIteratorStreamer、Server-Sent Events |
-| **非同步處理** | Asyncio、Threading |
-| **模型推論** | HuggingFace Transformers、PyTorch |
-| **測試模型** | Qwen2-1.5B-Instruct |
-| **部署方式** | Uvicorn ASGI Server |
+| 組件                  | 技術                                          |
+| ------------------- | ------------------------------------------- |
+| **Web framework**       | FastAPI、Uvicorn                         |
+| **Streaming**           | SSE-Starlette                           |
+| **LLM Token Streaming** | TextIteratorStreamer                    |
+| **Compute**             | 背景 Thread                              |
+| **Async**               | asyncio event loop, async SSE               |
+| **Profiling**           | TTFT, latency, throughput, p95, token_count |
+| **Models**              | Qwen2-1.5B / Phi-2 / DialoGPT / GPT2        |
+| **Device**              | CUDA FP16                                   |
+
 
 ## 📊 效能指標
 | 指標 | Baseline | 優化後 | 改善幅度 |
