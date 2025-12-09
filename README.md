@@ -55,9 +55,9 @@
 4. Compute 與 I/O 完全解耦
 
 #### 👉 達成：
-✔ TTFT 更低
-✔ Latency 更穩定
-✔ Decode Throughput 更順暢
+- ✔ TTFT 更低
+- ✔ Latency 更穩定
+- ✔ Decode Throughput 更順暢
 
 
 ## 🧰 技術架構
