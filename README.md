@@ -12,7 +12,6 @@
 - ✅ 即時串流輸出: SSE 協定實現 token-by-token 漸進式回應
 - ✅ 非同步處理: Asyncio + Threading 架構避免阻塞
 - ✅ TTFT 優化: 首 token 延遲降至 580ms (P95)，提升 76.7%
-- ✅ GPU 效能監控: 即時追蹤 GPU 使用率、記憶體、溫度
 - ✅ Production-Ready: 支援多併發請求、錯誤處理、連線管理
 - ✅ 模型支援: 相容 HuggingFace Transformers 所有生成模型
 
@@ -21,9 +20,9 @@
 |------|------|
 | **Web 框架** | FastAPI、SSE-Starlette |
 | **串流機制** | TextIteratorStreamer、Server-Sent Events |
-| **非同步處理** | Asyncio、Threading、Queue |
+| **非同步處理** | Asyncio、Threading |
 | **模型推論** | HuggingFace Transformers、PyTorch |
-| **效能監控** | GPU Profiling、pynvml、psutil |
+| **效能監控** | psutil |
 | **測試模型** | Qwen2-1.5B-Instruct |
 | **部署方式** | Uvicorn ASGI Server |
 
@@ -34,8 +33,6 @@
 | **TTFT (P90)** | 2.5s | 580ms | 76.8% ↓ |
 | **TTFT (P95)** | 3.2s | 740ms | 76.9% ↓ |
 | **Throughput** | ~45tokens/s | ~45tokens/s  | - |
-| **GPU使用率** | 78% | 82% | 4% ↑ |
-| **記憶體峰值** | 3.2GB | 3.1GB | 3% ↓ |
 
 ## 📊 Benchmark 結果
 ### 測試環境
