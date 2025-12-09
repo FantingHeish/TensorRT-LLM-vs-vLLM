@@ -20,7 +20,7 @@
   - 不做 compute
   - 專責讀取 Streamer、推送 token
 #### 👉 達成：
-推論與輸出分離，使第一個token更快送出（降低 TTFT）。
+- ✔ 推論與輸出分離，使第一個token更快送出（降低 TTFT）。
 
 ### 🔸 2. Streaming Pipeline：token 一生成就送到 client
 #### 🎯 作法：（Streaming 流程）
@@ -32,7 +32,7 @@
 💡 Async Event Loop：支援連續流式輸出、避免阻塞
 
 #### 👉 達成：
-Streamer 一旦收到 token，即刻送給 client —— 無需等待整段完成。
+- ✔ Streamer 一旦收到 token，即刻送給 client —— 無需等待整段完成。
 
 ### 🔸 3. Prefill / Decode Pipeline 的自然解耦
 #### 🎯 作法：
@@ -43,9 +43,9 @@ Streamer 一旦收到 token，即刻送給 client —— 無需等待整段完�
 | **主執行緒（FastAPI）** | 從 Streamer 拉 token → SSE 傳給前端 |
 
 #### 👉 達成：
-✔ Prefill（重度計算）不阻塞 token 傳輸
-✔ Decode token 出現後可立即送出
-✔ TTFT 顯著降低、互動性更強
+- ✔ Prefill（重度計算）不阻塞 token 傳輸
+- ✔ Decode token 出現後可立即送出
+- ✔ TTFT 顯著降低、互動性更強
 
 ### 🔸 4. Non-blocking Inference（非阻塞推論架構）
 #### 🎯 作法：
