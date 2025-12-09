@@ -11,7 +11,7 @@
 ## 🚀 技術核心
 ⭐ 透過背景 Thread 推論、TextIteratorStreamer、SSE 即時 Token 傳輸，構成非阻塞的 Streaming Pipeline，有效降低 TTFT / Latency 並提升互動流暢度。
 ### 🔸 1. Async Decode Thread
-🎯 作法：
+#### 🎯 作法：
 將推論 (model.generate) 放在背景 Thread 執行：
 - Background Thread
   - 執行 Prefill（重計算）
@@ -19,10 +19,11 @@
 - FastAPI 主執行緒
   - 不做 compute
   - 專責讀取 Streamer、推送 token
-👉 達成：推論與輸出分離，使第一個token更快送出（降低 TTFT）。
+#### 👉 達成：
+推論與輸出分離，使第一個token更快送出（降低 TTFT）。
 
 ### 🔸 2. Streaming Pipeline：token 一生成就送到 client
-🎯 作法：（Streaming 流程）
+#### 🎯 作法：（Streaming 流程）
 1. 背景 Thread 執行 model.generate()
 2. 每生成一個 token → push 到 TextIteratorStreamer queue
 3. FastAPI SSE handler 逐 token 傳輸：
@@ -30,29 +31,30 @@
 💡 SSE (Server-Sent Events)：即時推送 token
 💡 Async Event Loop：支援連續流式輸出、避免阻塞
 
-👉 Streamer 一旦收到 token，即刻送給 client —— 無需等待整段完成。
+#### 👉 達成：
+Streamer 一旦收到 token，即刻送給 client —— 無需等待整段完成。
 
 ### 🔸 3. Prefill / Decode Pipeline 的自然解耦
-🎯 作法：
+#### 🎯 作法：
 架構會自動形成兩條 pipeline 如下：
 | 執行緒 | 工作內容 |
 |------|------|
 | **背景 Thread** | Prefill → Decode → push token 到 Streamer |
 | **主執行緒（FastAPI）** | 從 Streamer 拉 token → SSE 傳給前端 |
 
-👉 達成：
+#### 👉 達成：
 ✔ Prefill（重度計算）不阻塞 token 傳輸
 ✔ Decode token 出現後可立即送出
 ✔ TTFT 顯著降低、互動性更強
 
 ### 🔸 4. Non-blocking Inference（非阻塞推論架構）
-🎯 作法：
-API Handler（async）不等待 compute
-Compute 在背景 Thread 跑，不阻塞 event loop
-SSE 持續推送 token，不需等待完整輸出
-Compute 與 I/O 完全解耦
+#### 🎯 作法：
+1. API Handler（async）不等待 compute
+2. Compute 在背景 Thread 跑，不阻塞 event loop
+3. SSE 持續推送 token，不需等待完整輸出
+4. Compute 與 I/O 完全解耦
 
-👉 達成：
+#### 👉 達成：
 ✔ TTFT 更低
 ✔ Latency 更穩定
 ✔ Decode Throughput 更順暢
@@ -65,7 +67,6 @@ Compute 與 I/O 完全解耦
 | **串流機制** | TextIteratorStreamer、Server-Sent Events |
 | **非同步處理** | Asyncio、Threading |
 | **模型推論** | HuggingFace Transformers、PyTorch |
-| **效能監控** | psutil |
 | **測試模型** | Qwen2-1.5B-Instruct |
 | **部署方式** | Uvicorn ASGI Server |
 
