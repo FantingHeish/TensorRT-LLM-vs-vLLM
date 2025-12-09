@@ -43,11 +43,6 @@
 ### 🔸 3. Prefill / Decode Pipeline 自然解耦
 #### 🎯 作法：
 - 背景 Thread 工作：
-| Prefill | Decode | 
-|-------------------------------|---------------------------------|
-| **embedding + attn weights** | autoregressive token production |
-| **重度計算** | 輕度逐步計算 |
-
 - FastAPI 主執行緒：
   - 等待 streamer 的 token
   - 用 SSE 送給 client
