@@ -35,12 +35,6 @@
 | **Throughput** | ~45tokens/s | ~45tokens/s  | - |
 
 ## 📊 Benchmark 結果
-### 測試環境
-- GPU: NVIDIA RTX 3090 (24GB)
-- CPU: AMD Ryzen 9 5950X
-- Model: Qwen2-1.5B-Instruct
-- Batch Size: 1
-
 ### TTFT分布圖
 <img width="616" height="243" alt="Screenshot 2025-11-11 at 06 05 51" src="https://github.com/user-attachments/assets/e21dd99d-e897-43b3-91ed-55aa6194fff6" />
 
