@@ -218,7 +218,7 @@ async def generate_streaming(req: GenerateRequest):
         first_piece_time = None
         piece_count = 0
 
-        # Background generation thread
+        # Background generation thread (Async Decode Thread)
         th = threading.Thread(target=_run_generate, args=(inputs, streamer, req), daemon=True)
         th.start()
 
